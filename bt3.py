@@ -1,36 +1,33 @@
 # 1. Khai báo Input / Output
-# * Input: 
-#   - Lựa chọn menu (1-5), mã SP, tên SP, giá bán, số lượng.
-#   - Tất cả đều nhận vào dạng chuỗi (str) từ bàn phím để dễ xử lý bẫy dữ liệu.
-# * Output: 
-#   - Giao diện menu văn bản.
-#   - Danh sách sản phẩm in theo dòng, định dạng chuẩn (Mã | Tên | Giá | SL).
-#   - Các câu thông báo kết quả (Thành công / Thất bại / Lỗi nhập liệu).
-# 2. Phương pháp xử lý 5 bẫy dữ liệu (Edge Cases)
-# * Bẫy 1 (Mã SP dính khoảng trắng, viết thường):
-#   - Dùng `raw_id.strip().upper()` để vừa xóa khoảng trắng 2 đầu, vừa in hoa.
-# * Bẫy 2 (Trùng mã khi thêm mới):
-#   - Dùng vòng lặp `for` quét qua list, nếu `clean_id == prod['product_id']` 
-#     thì chặn lại, báo lỗi "Mã sản phẩm bị trùng".
-# * Bẫy 3 (Sửa/Xóa mã không tồn tại):
-#   - Tạo biến tạm `found = None`. Quét list nếu thấy thì gán sản phẩm vào biến này.
-#   - Hết vòng lặp, nếu `found is None` thì báo lỗi "Không tìm thấy...".
-# * Bẫy 4 (Giá/Số lượng nhập chữ, số âm, bằng 0):
-#   - Dùng `.isdigit()` check chuỗi nhập vào: nếu chứa chữ hoặc dấu trừ (-) sẽ bị 
-#     loại ngay từ đầu. Sau đó ép kiểu `int()` và check `> 0` để loại số 0.
-# * Bẫy 5 (Nhập sai menu):
-#   - Gom toàn bộ code vào `while True`. Nhánh `else` cuối cùng của bộ điều kiện 
-#     sẽ bắt các lựa chọn sai, in lỗi và tự động đẩy về đầu vòng lặp để hiện lại menu.
-# 3. Luồng xử lý chương trình (Pseudocode ngắn)
-# Khởi tạo list chứa 3 dict sản phẩm mẫu.
+# * Input: Lựa chọn menu (1-5), mã SP, tên SP, giá bán, số lượng.
+#   - Tất cả để dạng chuỗi (str) từ bàn phím để check lỗi trước khi ép kiểu.
+# * Output: Khung menu text, danh sách sản phẩm (có STT từ 1) và các câu thông báo.
+
+
+# 2. Cách xử lý 5 bẫy dữ liệu (Edge Cases)
+# * Bẫy 1 (Mã SP dính khoảng trắng/viết thường): Dùng `.strip().upper()` chuẩn hóa.
+# * Bẫy 2 (Trùng mã khi thêm): Quét list `for`, trùng thì báo "Mã sản phẩm bị trùng".
+# * Bẫy 3 (Sửa/Xóa mã không có): Gán biến tạm `target_product = None` để tìm. 
+#   Nếu hết vòng lặp vẫn là `None` thì báo lỗi cập nhật/xoá tương ứng.
+# * Bẫy 4 (Giá/SL nhập chữ, số âm, bằng 0): Check `.isdigit()` để loại chữ và số âm. 
+#   Sau đó ép kiểu `int()` và check `<= 0` để loại số 0. Sai báo "Giá/Số lượng không hợp lệ".
+# * Bẫy 5 (Nhập bậy menu): Dùng `while True` với `match-case`. Nhánh `case _` sẽ bắt 
+#   hết lựa chọn sai, báo lỗi và tự động lặp lại hiện menu.
+# 3. Luồng xử lý chương trình (Pseudocode)
+# Khởi tạo list `product_list` chứa 3 sản phẩm mẫu.
 # Vòng lặp while True:
 #   In Menu -> Nhập choice.
-#   Choice == 1: Nếu list rỗng -> Báo trống. Ngược lại -> Duyệt list và in.
-#   Choice == 2: Nhập thông tin -> Chuẩn hóa mã -> Check trùng -> Check số nguyên dương -> Thêm vào list.
-#   Choice == 3: Nhập mã -> Chuẩn hóa -> Tìm kiếm -> Không thấy báo lỗi / Thấy thì nhập thông tin mới -> Check số nguyên dương -> Ghi đè dữ liệu.
-#   Choice == 4: Nhập mã -> Chuẩn hóa -> Tìm kiếm -> Không thấy báo lỗi / Thấy thì remove() khỏi list.
-#   Choice == 5: In "Thoát" -> break dừng vòng lặp.
-#   Ngược lại: In "Lựa chọn không hợp lệ", lặp lại.
+#   Match choice:
+#     Case "1": Nếu list rỗng -> Báo trống. Ngược lại -> Duyệt list và in.
+#     Case "2": Nhập liệu -> Chuẩn hóa mã -> Check trống -> Check trùng -> Check số nguyên dương -> Append vào list.
+#     Case "3": Nhập mã -> Chuẩn hóa -> Tìm kiếm:
+#               + Không thấy -> Báo "Không tìm thấy mã sản phẩm cần cập nhật!".
+#               + Thấy -> Nhập thông tin mới -> Check số nguyên dương -> Dùng .update().
+#     Case "4": Nhập mã -> Chuẩn hóa -> Tìm kiếm:
+#               + Không thấy -> Báo "Không tìm thấy mã sản phẩm cần xoá!".
+#               + Thấy -> Dùng .remove() xóa khỏi list.
+#     Case "5": In "Thoát chương trình." -> break dừng vòng lặp.
+#     Case _  : In '"Lựa chọn không hợp lệ", vui lòng nhập lại!'.
 
 product_list = [
     {
